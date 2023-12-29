@@ -23,7 +23,7 @@ public class HistoryOfSpendingsComponent {
         return this;
     }
 
-    public HistoryOfSpendingsComponent deleteSingleSpendingByButtonDeleteSpending(String spendDescription) {
+    public HistoryOfSpendingsComponent deleteSpendingByButtonDeleteSpending(String spendDescription) {
         tableOfSpendings
                 .$$("tr")
                 .find(text(spendDescription))
@@ -32,6 +32,10 @@ public class HistoryOfSpendingsComponent {
         buttonDeleteSelectedSpending.shouldNotHave(attribute("disabled"))
                 .click();
 
+        return this;
+    }
+
+    public HistoryOfSpendingsComponent verifyEmptyListOfSpendings() {
         tableOfSpendings.$$("tr")
                 .shouldHave(size(0));
 

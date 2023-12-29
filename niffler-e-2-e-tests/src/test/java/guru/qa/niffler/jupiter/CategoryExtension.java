@@ -1,6 +1,6 @@
 package guru.qa.niffler.jupiter;
 
-import guru.qa.niffler.api.SpendApi;
+import guru.qa.niffler.api.CategoryApi;
 import guru.qa.niffler.model.CategoryJson;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.extension.*;
@@ -15,14 +15,14 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver 
     public static final ExtensionContext.Namespace NAMESPACE
             = ExtensionContext.Namespace.create(CategoryExtension.class);
 
-    private static final OkHttpClient httpClient = new OkHttpClient.Builder().build();
+    private static final OkHttpClient HTTP_CLIENT = new OkHttpClient.Builder().build();
     private static final Retrofit retrofit = new Retrofit.Builder()
-            .client(httpClient)
+            .client(HTTP_CLIENT)
             .baseUrl("http://127.0.0.1:8093")
             .addConverterFactory(JacksonConverterFactory.create())
             .build();
 
-    private final SpendApi spendApi = retrofit.create(SpendApi.class);
+    private final CategoryApi categoryApi = retrofit.create(CategoryApi.class);
 
 
     @Override
@@ -40,7 +40,7 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver 
                     categoryData.username()
             );
 
-            spendApi.addCategory(categoryJson).execute();
+            categoryApi.addCategory(categoryJson).execute();
 
             extensionContext.getStore(NAMESPACE)
                     .put("category", categoryJson);
@@ -55,7 +55,7 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver 
     }
 
     @Override
-    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+    public CategoryJson resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         return extensionContext.getStore(NAMESPACE)
                 .get("category", CategoryJson.class);
     }

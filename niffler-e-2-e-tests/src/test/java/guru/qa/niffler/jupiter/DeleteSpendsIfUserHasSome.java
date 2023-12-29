@@ -11,5 +11,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @ExtendWith(DeleteAllSpendsExtension.class)
-public @interface DeleteAllSpends {
+public @interface DeleteSpendsIfUserHasSome {
 }

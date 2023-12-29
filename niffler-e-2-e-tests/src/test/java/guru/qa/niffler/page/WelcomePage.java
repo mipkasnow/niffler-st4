@@ -1,5 +1,6 @@
 package guru.qa.niffler.page;
 
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 
@@ -14,6 +15,7 @@ public class WelcomePage {
             registerButton = $("a[href*='register']"),
             title = $(withText("Welcome to magic journey with Niffler. The coin keeper")),
             logo = $("[alt='Logo Niffler']");
+    private static final String MAIN_URL = "http://127.0.0.1:3000/main";
 
     @Step("Ожидание загрузки начальной страницы приложения")
     public WelcomePage waitUntilLoaded() {
@@ -21,6 +23,12 @@ public class WelcomePage {
         logo.should(appear);
 
         return this;
+    }
+
+    @Step("Открыть начальную страницу приложения")
+    public WelcomePage open() {
+        Selenide.open(MAIN_URL);
+        return this.waitUntilLoaded();
     }
 
     @Step("Нажать кнопку логина и перейти на страницу авторизации")

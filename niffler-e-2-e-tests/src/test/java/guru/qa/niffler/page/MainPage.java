@@ -21,10 +21,18 @@ public class MainPage {
         return this;
     }
 
-    @Step("Удалить единственный Spending {spendDescription} и проверить пустой список Spendings")
-    public MainPage deleteSingleSpendingByButtonDeleteAndVerifyEmptyListOfSpendings(String spendDescription) {
-        historyOfSpendingsComponent.deleteSingleSpendingByButtonDeleteSpending(spendDescription);
+    @Step("Удалить Spending по названию {spendDescription}")
+    public MainPage deleteSpendingByButtonDelete(String spendDescription) {
+        historyOfSpendingsComponent.deleteSpendingByButtonDeleteSpending(spendDescription);
         toast.shouldHave(text("Spendings deleted"));
+
+        return this;
+    }
+
+    @Step("Проверить пустой список Spendings")
+    public MainPage verifyEmptyListOfSpendings() {
+        historyOfSpendingsComponent.verifyEmptyListOfSpendings();
+
         return this;
     }
 

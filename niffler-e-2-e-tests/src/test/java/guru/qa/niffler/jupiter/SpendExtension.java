@@ -35,7 +35,8 @@ public class SpendExtension implements BeforeEachCallback, ParameterResolver {
 
         if (spend.isPresent()) {
             GenerateSpend spendData = spend.get();
-            CategoryJson categoryFromExtension = (CategoryJson) extensionContext.getStore(CategoryExtension.NAMESPACE).get("category");
+            CategoryJson categoryFromExtension = (CategoryJson) extensionContext
+                    .getStore(CategoryExtension.NAMESPACE).get("category");
 
             SpendJson spendJson = new SpendJson(
                     null,
