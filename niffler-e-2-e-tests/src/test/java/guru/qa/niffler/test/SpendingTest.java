@@ -4,6 +4,7 @@ import com.codeborne.selenide.Configuration;
 import guru.qa.niffler.jupiter.DeleteSpendsIfUserHasSome;
 import guru.qa.niffler.jupiter.GenerateCategory;
 import guru.qa.niffler.jupiter.GenerateSpend;
+import guru.qa.niffler.jupiter.GenerateSpend;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.page.WelcomePage;
@@ -14,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 @Epic("Веб тесты")
 @Feature("Spendings")
-public class SpendingTest {
+public class SpendingTest extends BaseWebTest{
 
     private final WelcomePage welcomePage = new WelcomePage();
 
@@ -35,6 +36,7 @@ public class SpendingTest {
             currency = CurrencyValues.RUB
     )
     @Test
+    @DisabledByIssue("74")
     @DisplayName("Пользователь может удалить Spending")
     void spendingShouldBeDeletedByButtonDeleteSpending(SpendJson spend) {
         welcomePage.open().clickLoginAndGoToSignInPage()
