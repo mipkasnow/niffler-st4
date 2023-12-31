@@ -34,7 +34,6 @@ public class WelcomePage {
     @Step("Нажать кнопку логина и перейти на страницу авторизации")
     public SignInPage clickLoginAndGoToSignInPage() {
         loginButton.click();
-
         return new SignInPage().waitUntilLoaded();
     }
 
@@ -49,7 +48,6 @@ public class WelcomePage {
         @Step("Ожидание загрузки страницы входа в приложение")
         public SignInPage waitUntilLoaded() {
             subTitle.should(appear);
-
             return this;
         }
 
