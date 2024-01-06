@@ -6,11 +6,10 @@ import guru.qa.niffler.model.UserJson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.*;
 
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -21,7 +20,7 @@ public class UsersQueueExtension implements BeforeEachCallback, AfterTestExecuti
   public static final ExtensionContext.Namespace NAMESPACE
       = ExtensionContext.Namespace.create(UsersQueueExtension.class);
 
-  private static Map<User.UserType, Queue<UserJson>> users = new ConcurrentHashMap<>();
+  private static Map<User.UserType, Queue<UserJson>> USERS = new ConcurrentHashMap<>();
 
   static {
     Queue<UserJson> withFriendsQueue = new ConcurrentLinkedQueue<>();
@@ -33,29 +32,29 @@ public class UsersQueueExtension implements BeforeEachCallback, AfterTestExecuti
     invitationSendQueue.add(user("bee", "12345", INVITATION_SEND));
     invitationReceivedQueue.add(user("barsik", "12345", INVITATION_RECEIVED));
 
-    users.put(WITH_FRIENDS, withFriendsQueue);
-    users.put(INVITATION_SEND, invitationSendQueue);
-    users.put(INVITATION_RECEIVED, invitationReceivedQueue);
+    USERS.put(WITH_FRIENDS, withFriendsQueue);
+    USERS.put(INVITATION_SEND, invitationSendQueue);
+    USERS.put(INVITATION_RECEIVED, invitationReceivedQueue);
   }
 
   @Override
   public void beforeEach(ExtensionContext context) throws Exception {
-    Parameter[] parameters = getParameters(context);
+    List<Parameter> parameters = getParameters(context);
+
     Map<User.UserType, UserJson> testCandidates = new HashMap<>();
-
     for (Parameter parameter : parameters) {
-      User annotation = parameter.getAnnotation(User.class);
+        User.UserType userType = parameter.getAnnotation(User.class).value();
+        if(testCandidates.containsKey(userType)) {
+          continue;
+        }
 
-      if (annotation != null && parameter.getType().isAssignableFrom(UserJson.class) && parameters.length > testCandidates.size()) {
         UserJson testCandidate = null;
-
-        Queue<UserJson> queue = users.get(annotation.value());
-
+        Queue<UserJson> queue = USERS.get(userType);
         while (testCandidate == null) {
           testCandidate = queue.poll();
         }
-        testCandidates.put(testCandidate.testData().userType(), testCandidate);
-      }
+
+        testCandidates.put(userType, testCandidate);
     }
 
     context.getStore(NAMESPACE).put(context.getUniqueId(), testCandidates);
@@ -67,7 +66,7 @@ public class UsersQueueExtension implements BeforeEachCallback, AfterTestExecuti
             .get(context.getUniqueId(), Map.class);
 
     for (User.UserType userType : usersFromTest.keySet()) {
-      users.get(userType).add(usersFromTest.get(userType));
+      USERS.get(userType).add(usersFromTest.get(userType));
     }
   }
 
@@ -102,15 +101,20 @@ public class UsersQueueExtension implements BeforeEachCallback, AfterTestExecuti
     );
   }
 
-  private static Parameter[] getParameters(ExtensionContext context) {
-    Method[] methods = context.getRequiredTestClass().getDeclaredMethods();
+  private static List<Parameter> getParameters(ExtensionContext context) {
+    List<Method> methods = new ArrayList<>();
+    methods.add(context.getRequiredTestMethod());
+    Arrays.stream(context.getRequiredTestClass().getDeclaredMethods())
+            .filter(m -> m.isAnnotationPresent(BeforeEach.class))
+            .forEach(methods::add);
 
-    for (Method method: methods) {
-      if(method.isAnnotationPresent(BeforeEach.class) && method.getParameters().length > 0) {
-          return method.getParameters();
-      }
-    }
+    List<Parameter> parameters = methods.stream()
+            .map(Executable::getParameters)
+            .flatMap(Arrays::stream)
+            .filter(parameter -> parameter.isAnnotationPresent(User.class))
+            .filter(parameter -> parameter.getType().isAssignableFrom(UserJson.class))
+            .toList();
 
-    return context.getRequiredTestMethod().getParameters();
+    return parameters;
   }
 }

@@ -50,8 +50,7 @@ public class PeopleTableComponent {
     }
 
     public PeopleTableComponent verifyPendingInvitationToUser(String username) {
-        peopleTable.$$("tr")
-                .first()
+        peopleTable.$("tr")
                 .$$("td")
                 .get(1)
                 .shouldHave(text(username));
