@@ -12,7 +12,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 import java.util.Date;
 import java.util.Optional;
 
-public class SpendExtension implements BeforeEachCallback {
+public class SpendExtension implements BeforeEachCallback, ParameterResolver {
 
     public static final ExtensionContext.Namespace NAMESPACE
             = ExtensionContext.Namespace.create(SpendExtension.class);
