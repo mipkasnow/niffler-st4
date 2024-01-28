@@ -11,4 +11,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @ExtendWith(DbUserExtension.class)
 public @interface DbUser {
+
+    String password();
+
+    String username();
+
+    boolean deleteAfterTest() default true;
 }

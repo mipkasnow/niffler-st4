@@ -170,7 +170,7 @@ public class UserRepositoryJdbc implements UserRepository {
             user.setUsername(resultSet.getString("username"));
             user.setCurrency(CurrencyValues.valueOf(resultSet.getString("currency")));
             user.setFirstname(resultSet.getString("firstname"));
-            user.setSurname(resultSet.getString("setsurname"));
+            user.setSurname(resultSet.getString("surname"));
             user.setPhoto(resultSet.getBytes("photo"));
             users.add(user);
           }
@@ -208,6 +208,20 @@ public class UserRepositoryJdbc implements UserRepository {
     }
 
     return user;
+  }
+
+  @Override
+  public void blockUserByNameInAuth(String name) {
+    try (Connection conn = authDs.getConnection()){
+
+      try (PreparedStatement ps = conn.prepareStatement("UPDATE \"user\" SET enabled=false, account_non_expired=false, " +
+              "account_non_locked=false, credentials_non_expired=false WHERE username='" + name + "'")){
+        ps.execute();
+      }
+
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
   }
 
 

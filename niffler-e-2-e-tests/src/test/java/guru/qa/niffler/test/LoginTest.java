@@ -5,7 +5,6 @@ import guru.qa.niffler.db.model.UserAuthEntity;
 import guru.qa.niffler.db.model.UserEntity;
 import guru.qa.niffler.db.repository.UserRepository;
 import guru.qa.niffler.jupiter.DbUser;
-import guru.qa.niffler.jupiter.DeleteDbUser;
 import guru.qa.niffler.jupiter.UserRepositoryExtension;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,8 +16,7 @@ public class LoginTest extends BaseWebTest {
   private UserRepository userRepository;
 
   @Test
-  @DbUser
-  @DeleteDbUser
+  @DbUser(username = "Petya", password = "12345", deleteAfterTest = true)
   void statisticShouldBeVisibleAfterLogin(UserAuthEntity userAuth) {
     welcomePage.open().clickLoginAndGoToSignInPage().signInUser(
             userAuth.getUsername(),
@@ -27,9 +25,8 @@ public class LoginTest extends BaseWebTest {
   }
 
   @Test
-  @DbUser
-  @DeleteDbUser
-  void shouldChangeProfileName(UserAuthEntity userAuth) {
+  @DbUser(username = "", password = "", deleteAfterTest = true)
+  void shouldChangeDefaultCurrency(UserAuthEntity userAuth) {
     welcomePage.open().clickLoginAndGoToSignInPage().signInUser(
             userAuth.getUsername(),
             userAuth.getPassword()
@@ -40,9 +37,8 @@ public class LoginTest extends BaseWebTest {
   }
 
   @Test
-  @DbUser
-  @DeleteDbUser
-  public void  shouldSetFirstAndSirName(UserAuthEntity userAuth) {
+  @DbUser(username = "", password = "")
+  public void  shouldSetFirstAndSurName(UserAuthEntity userAuth) {
     welcomePage.open().clickLoginAndGoToSignInPage().signInUser(
             userAuth.getUsername(),
             userAuth.getPassword()
@@ -57,4 +53,16 @@ public class LoginTest extends BaseWebTest {
     Assertions.assertEquals(firstName, user.getFirstname());
     Assertions.assertEquals(surName, user.getSurname());
   }
+
+  @Test
+  @DbUser(username = "BlockedUser", password = "")
+  void blockedUserCantAuthOnMainPage(UserAuthEntity userAuth) {
+    userRepository.blockUserByNameInAuth(userAuth.getUsername());
+
+    welcomePage.open().clickLoginAndGoToSignInPage()
+            .setUserName(userAuth.getUsername())
+            .setPassword(userAuth.getPassword())
+            .clickLoginButton().blockedUserMessageShouldAppear();
+  }
+
 }

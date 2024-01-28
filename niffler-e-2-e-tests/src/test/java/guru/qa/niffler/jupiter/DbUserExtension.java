@@ -5,27 +5,48 @@ import guru.qa.niffler.db.model.*;
 import guru.qa.niffler.db.repository.UserRepository;
 import guru.qa.niffler.db.repository.UserRepositoryJdbc;
 import org.junit.jupiter.api.extension.*;
+import org.junit.platform.commons.support.AnnotationSupport;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
-public class DbUserExtension implements BeforeEachCallback, ParameterResolver {
+public class DbUserExtension implements BeforeEachCallback, ParameterResolver, AfterTestExecutionCallback {
 
     public static final ExtensionContext.Namespace NAMESPACE
             = ExtensionContext.Namespace.create(DbUserExtension.class);
 
-    private final UserAuthEntity userAuth =  new UserAuthEntity();
-    private final UserEntity user = new UserEntity();
+    private UserAuthEntity userAuth =  new UserAuthEntity();
+    private UserEntity user = new UserEntity();
     private final Faker faker = new Faker();
     private final UserRepository userRepository = new UserRepositoryJdbc();
 
+    private static final String USER_AUTH_KEY = "userAuth";
+    private static final String USER_KEY = "user";
+
+    private String userName;
+    private String password;
+    private boolean deleteAfterTest;
+
     @Override
     public void beforeEach(ExtensionContext extensionContext) throws Exception {
-        String rndUserName = faker.name().firstName();
+        Optional<DbUser> dbUser = AnnotationSupport.findAnnotation(
+                extensionContext.getRequiredTestMethod(),
+                DbUser.class
+        );
 
-        userAuth.setUsername(rndUserName);
-        userAuth.setPassword(String.valueOf(faker.number().numberBetween(10000, 99999)));
+        if (dbUser.isPresent()) {
+            DbUser dbUserData = dbUser.get();
+            this.userName = "".equals(dbUserData.username()) ? faker.name().firstName() : dbUserData.username();
+            this.password = "".equals(dbUserData.password())
+                    ? String.valueOf(faker.number().numberBetween(10000, 99999))
+                    : dbUserData.password();
+            this.deleteAfterTest = dbUserData.deleteAfterTest();
+        }
+
+        userAuth.setUsername(this.userName);
+        userAuth.setPassword(this.password);
         userAuth.setEnabled(true);
         userAuth.setAccountNonExpired(true);
         userAuth.setAccountNonLocked(true);
@@ -38,17 +59,31 @@ public class DbUserExtension implements BeforeEachCallback, ParameterResolver {
                 }).toList()
         );
 
-        user.setUsername(rndUserName);
+        user.setUsername(this.userName);
         user.setCurrency(CurrencyValues.RUB);
 
         userRepository.createInAuth(userAuth);
         userRepository.createInUserdata(user);
 
         Map<String, Object> userEntities = new HashMap<>();
-        userEntities.put("userAuth", userAuth);
-        userEntities.put("user", user);
+        userEntities.put(USER_AUTH_KEY, userAuth);
+        userEntities.put(USER_KEY, user);
 
         extensionContext.getStore(NAMESPACE).put(extensionContext.getUniqueId(), userEntities);
+    }
+
+    @Override
+    public void afterTestExecution(ExtensionContext extensionContext) throws Exception {
+        if(this.deleteAfterTest) {
+            Map<String, Object> userEntities = (Map<String, Object>) extensionContext
+                    .getStore(DbUserExtension.NAMESPACE).get(extensionContext.getUniqueId());
+
+            UserAuthEntity userAuth = (UserAuthEntity) userEntities.get(USER_AUTH_KEY);
+            UserEntity user = (UserEntity) userEntities.get(USER_KEY);
+
+            userRepository.deleteInAuthById(userAuth.getId());
+            userRepository.deleteInUserdataById(user.getId());
+        }
     }
 
     @Override
@@ -62,6 +97,6 @@ public class DbUserExtension implements BeforeEachCallback, ParameterResolver {
     public UserAuthEntity resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         return (UserAuthEntity) extensionContext.getStore(NAMESPACE)
                 .get(extensionContext.getUniqueId(), Map.class)
-                .get("userAuth");
+                .get(USER_AUTH_KEY);
     }
 }

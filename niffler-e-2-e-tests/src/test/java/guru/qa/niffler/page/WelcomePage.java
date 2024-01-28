@@ -6,6 +6,7 @@ import guru.qa.niffler.config.Config;
 import io.qameta.allure.Step;
 
 import static com.codeborne.selenide.Condition.appear;
+import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selectors.withText;
 import static com.codeborne.selenide.Selenide.$;
 
@@ -40,6 +41,9 @@ public class WelcomePage {
 
     public static class SignInPage {
 
+        private final SelenideElement errorField = $(".form__error");
+        private final String blockedUserMessage = "Учетная запись пользователя заблокирована";
+
         private final SelenideElement
                 subTitle = $(withText("Please sign in")),
                 userNameInput = $("input[name='username']"),
@@ -59,6 +63,30 @@ public class WelcomePage {
             signInButton.click();
 
             return new MainPage().waitUntilLoaded();
+        }
+
+        @Step("Ввести имя пользователя {userName}")
+        public SignInPage setUserName(String userName) {
+            userNameInput.setValue(userName);
+            return this;
+        }
+
+        @Step("Ввести пароль")
+        public SignInPage setPassword(String password) {
+            passwordInput.setValue(password);
+            return this;
+        }
+
+        @Step("Нажать кнопку логина")
+        public SignInPage clickLoginButton() {
+            signInButton.click();
+            return this;
+        }
+
+        @Step("Проверка появления сообщения" + blockedUserMessage)
+        public SignInPage blockedUserMessageShouldAppear() {
+            errorField.shouldHave(text(blockedUserMessage));
+            return this;
         }
     }
 }

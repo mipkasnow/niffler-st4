@@ -22,4 +22,6 @@ public interface UserRepository {
   List<UserEntity> getAllUsersData();
 
   UserEntity getUserDataByName(String name);
+
+  void blockUserByNameInAuth(String name);
 }
