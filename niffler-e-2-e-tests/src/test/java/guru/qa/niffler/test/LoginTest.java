@@ -25,7 +25,7 @@ public class LoginTest extends BaseWebTest {
   }
 
   @Test
-  @DbUser(username = "", password = "", deleteAfterTest = true)
+  @DbUser()
   void shouldChangeDefaultCurrency(UserAuthEntity userAuth) {
     welcomePage.open().clickLoginAndGoToSignInPage().signInUser(
             userAuth.getUsername(),
@@ -37,7 +37,7 @@ public class LoginTest extends BaseWebTest {
   }
 
   @Test
-  @DbUser(username = "", password = "")
+  @DbUser(username = "Oleg", password = "12345")
   public void  shouldSetFirstAndSurName(UserAuthEntity userAuth) {
     welcomePage.open().clickLoginAndGoToSignInPage().signInUser(
             userAuth.getUsername(),
@@ -55,7 +55,7 @@ public class LoginTest extends BaseWebTest {
   }
 
   @Test
-  @DbUser(username = "BlockedUser", password = "")
+  @DbUser(username = "BlockedUser")
   void blockedUserCantAuthOnMainPage(UserAuthEntity userAuth) {
     userRepository.blockUserByNameInAuth(userAuth.getUsername());
 
