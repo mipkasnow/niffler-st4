@@ -2,10 +2,7 @@ package guru.qa.niffler.db.repository;
 
 import guru.qa.niffler.db.DataSourceProvider;
 import guru.qa.niffler.db.JdbcUrl;
-import guru.qa.niffler.db.model.Authority;
-import guru.qa.niffler.db.model.CurrencyValues;
-import guru.qa.niffler.db.model.UserAuthEntity;
-import guru.qa.niffler.db.model.UserEntity;
+import guru.qa.niffler.db.model.*;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -16,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class UserRepositoryJdbc implements UserRepository {
@@ -82,6 +80,43 @@ public class UserRepositoryJdbc implements UserRepository {
   }
 
   @Override
+  public Optional<UserAuthEntity> findByIdInAuth(UUID id) {
+    try (Connection conn = authDs.getConnection();
+         PreparedStatement usersPs = conn.prepareStatement("SELECT * " +
+             "FROM \"user\" u " +
+             "JOIN \"authority\" a ON u.id = a.user_id " +
+             "where u.id = ?")) {
+      usersPs.setObject(1, id);
+
+      usersPs.execute();
+      UserAuthEntity user = new UserAuthEntity();
+      boolean userProcessed = false;
+      try (ResultSet resultSet = usersPs.getResultSet()) {
+        while (resultSet.next()) {
+          if (!userProcessed) {
+            user.setId(resultSet.getObject(1, UUID.class));
+            user.setUsername(resultSet.getString(2));
+            user.setPassword(resultSet.getString(3));
+            user.setEnabled(resultSet.getBoolean(4));
+            user.setAccountNonExpired(resultSet.getBoolean(5));
+            user.setAccountNonLocked(resultSet.getBoolean(6));
+            user.setCredentialsNonExpired(resultSet.getBoolean(7));
+            userProcessed = true;
+          }
+
+          AuthorityEntity authority = new AuthorityEntity();
+          authority.setId(resultSet.getObject(8, UUID.class));
+          authority.setAuthority(Authority.valueOf(resultSet.getString(10)));
+          user.getAuthorities().add(authority);
+        }
+      }
+      return userProcessed ? Optional.of(user) : Optional.empty();
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
   public UserEntity createInUserdata(UserEntity user) {
     try (Connection conn = udDs.getConnection()) {
       try (PreparedStatement ps = conn.prepareStatement(
@@ -106,6 +141,31 @@ public class UserRepositoryJdbc implements UserRepository {
       throw new RuntimeException(e);
     }
     return user;
+  }
+
+  @Override
+  public Optional<UserEntity> findByIdInUserdata(UUID id) {
+    UserEntity user = new UserEntity();
+    try (Connection conn = udDs.getConnection();
+         PreparedStatement usersPs = conn.prepareStatement("SELECT * FROM \"user\" WHERE id = ? ")) {
+      usersPs.setObject(1, id);
+      usersPs.execute();
+      try (ResultSet resultSet = usersPs.getResultSet()) {
+        if (resultSet.next()) {
+          user.setId(resultSet.getObject("id", UUID.class));
+          user.setUsername(resultSet.getString("username"));
+          user.setCurrency(CurrencyValues.valueOf(resultSet.getString("currency")));
+          user.setFirstname(resultSet.getString("firstname"));
+          user.setSurname(resultSet.getString("surname"));
+          user.setPhoto(resultSet.getBytes("photo"));
+        } else {
+          return Optional.empty();
+        }
+      }
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+    return Optional.of(user);
   }
 
   @Override
@@ -223,9 +283,4 @@ public class UserRepositoryJdbc implements UserRepository {
       throw new RuntimeException(e);
     }
   }
-
-
 }
-
-
-
