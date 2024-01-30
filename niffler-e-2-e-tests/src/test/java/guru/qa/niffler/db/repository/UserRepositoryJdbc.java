@@ -3,6 +3,7 @@ package guru.qa.niffler.db.repository;
 import guru.qa.niffler.db.DataSourceProvider;
 import guru.qa.niffler.db.JdbcUrl;
 import guru.qa.niffler.db.model.Authority;
+import guru.qa.niffler.db.model.CurrencyValues;
 import guru.qa.niffler.db.model.UserAuthEntity;
 import guru.qa.niffler.db.model.UserEntity;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -13,6 +14,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class UserRepositoryJdbc implements UserRepository {
@@ -107,11 +110,122 @@ public class UserRepositoryJdbc implements UserRepository {
 
   @Override
   public void deleteInAuthById(UUID id) {
+    try (Connection conn = authDs.getConnection()){
+      conn.setAutoCommit(false);
 
+      try (PreparedStatement authorityPs = conn.prepareStatement("DELETE FROM \"authority\"  WHERE user_id='" + id + "'");
+           PreparedStatement userPs = conn.prepareStatement("DELETE FROM \"user\" WHERE id='" + id + "'")) {
+        authorityPs.execute();
+        userPs.execute();
+        conn.commit();
+      } catch (Exception e) {
+        conn.rollback();
+        throw e;
+      } finally {
+        conn.setAutoCommit(true);
+      }
+
+    } catch (SQLException e) {
+        throw new RuntimeException(e);
+    }
   }
 
   @Override
   public void deleteInUserdataById(UUID id) {
+    try (Connection conn = udDs.getConnection()){
 
+      try (PreparedStatement ps = conn.prepareStatement("DELETE FROM \"user\" WHERE id='" + id + "'")){
+        ps.execute();
+      }
+
+    } catch (SQLException e) {
+        throw new RuntimeException(e);
+    }
   }
+
+  @Override
+  public void updateCurrencyByUsername(String userName, CurrencyValues currency) {
+    try (Connection conn = udDs.getConnection()){
+
+      try (PreparedStatement ps = conn.prepareStatement("UPDATE \"user\" SET currency='" + currency + "' where username ='" + userName + "'")){
+        ps.execute();
+      }
+
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public List<UserEntity> getAllUsersData() {
+    List<UserEntity> users = new ArrayList<>();
+
+    try (Connection conn = udDs.getConnection()){
+
+      try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM \"user\"")){
+        try (ResultSet resultSet = ps.executeQuery()){
+          while (resultSet.next()) {
+            UserEntity user = new UserEntity();
+            user.setId(UUID.fromString(resultSet.getString("id")));
+            user.setUsername(resultSet.getString("username"));
+            user.setCurrency(CurrencyValues.valueOf(resultSet.getString("currency")));
+            user.setFirstname(resultSet.getString("firstname"));
+            user.setSurname(resultSet.getString("surname"));
+            user.setPhoto(resultSet.getBytes("photo"));
+            users.add(user);
+          }
+        }
+      }
+
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+
+    return users;
+  }
+
+  @Override
+  public UserEntity getUserDataByName(String name) {
+    UserEntity user = new UserEntity();
+
+    try (Connection conn = udDs.getConnection()){
+
+      try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM \"user\" WHERE username='" + name + "'")){
+        try (ResultSet resultSet = ps.executeQuery()){
+          while (resultSet.next()) {
+            user.setId(UUID.fromString(resultSet.getString("id")));
+            user.setUsername(resultSet.getString("username"));
+            user.setCurrency(CurrencyValues.valueOf(resultSet.getString("currency")));
+            user.setFirstname(resultSet.getString("firstname"));
+            user.setSurname(resultSet.getString("surname"));
+            user.setPhoto(resultSet.getBytes("photo"));
+          }
+        }
+      }
+
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+
+    return user;
+  }
+
+  @Override
+  public void blockUserByNameInAuth(String name) {
+    try (Connection conn = authDs.getConnection()){
+
+      try (PreparedStatement ps = conn.prepareStatement("UPDATE \"user\" SET enabled=false, account_non_expired=false, " +
+              "account_non_locked=false, credentials_non_expired=false WHERE username='" + name + "'")){
+        ps.execute();
+      }
+
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+
 }
+
+
+

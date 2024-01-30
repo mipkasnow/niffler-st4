@@ -2,9 +2,11 @@ package guru.qa.niffler.page;
 
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+import guru.qa.niffler.config.Config;
 import io.qameta.allure.Step;
 
 import static com.codeborne.selenide.Condition.appear;
+import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selectors.withText;
 import static com.codeborne.selenide.Selenide.$;
 
@@ -15,7 +17,7 @@ public class WelcomePage {
             registerButton = $("a[href*='register']"),
             title = $(withText("Welcome to magic journey with Niffler. The coin keeper")),
             logo = $("[alt='Logo Niffler']");
-    private static final String MAIN_URL = "http://127.0.0.1:3000/main";
+    private static final String MAIN_URL = Config.getInstance().frontUrl();
 
     @Step("Ожидание загрузки начальной страницы приложения")
     public WelcomePage waitUntilLoaded() {
@@ -39,6 +41,9 @@ public class WelcomePage {
 
     public static class SignInPage {
 
+        private final SelenideElement errorField = $(".form__error");
+        private final String blockedUserMessage = "Учетная запись пользователя заблокирована";
+
         private final SelenideElement
                 subTitle = $(withText("Please sign in")),
                 userNameInput = $("input[name='username']"),
@@ -58,6 +63,30 @@ public class WelcomePage {
             signInButton.click();
 
             return new MainPage().waitUntilLoaded();
+        }
+
+        @Step("Ввести имя пользователя {userName}")
+        public SignInPage setUserName(String userName) {
+            userNameInput.setValue(userName);
+            return this;
+        }
+
+        @Step("Ввести пароль")
+        public SignInPage setPassword(String password) {
+            passwordInput.setValue(password);
+            return this;
+        }
+
+        @Step("Нажать кнопку логина")
+        public SignInPage clickLoginButton() {
+            signInButton.click();
+            return this;
+        }
+
+        @Step("Проверка появления сообщения" + blockedUserMessage)
+        public SignInPage blockedUserMessageShouldAppear() {
+            errorField.shouldHave(text(blockedUserMessage));
+            return this;
         }
     }
 }
