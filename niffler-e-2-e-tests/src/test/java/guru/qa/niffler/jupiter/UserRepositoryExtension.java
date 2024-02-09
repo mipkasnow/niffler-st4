@@ -15,7 +15,6 @@ public class UserRepositoryExtension implements TestInstancePostProcessor {
       if (field.getType().isAssignableFrom(UserRepository.class)) {
         String repositoryEnv = System.getProperty("repository", "jdbc");
         field.setAccessible(true);
-
           switch (repositoryEnv) {
             case "jdbc" -> field.set(o, new UserRepositoryJdbc());
             case "sjdbc" -> field.set(o, new UserRepositorySJdbc());
