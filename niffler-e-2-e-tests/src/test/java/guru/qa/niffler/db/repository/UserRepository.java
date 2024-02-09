@@ -29,4 +29,8 @@ public interface UserRepository {
   UserEntity getUserDataByName(String name);
 
   void blockUserByNameInAuth(String name);
+
+  public UserEntity updateInUserdata(UserEntity user);
+
+  public UserAuthEntity updateInAuth(UserAuthEntity user);
 }
