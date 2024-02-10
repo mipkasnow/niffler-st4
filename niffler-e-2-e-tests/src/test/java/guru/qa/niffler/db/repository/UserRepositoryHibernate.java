@@ -85,4 +85,14 @@ public class UserRepositoryHibernate extends JpaService implements UserRepositor
   public void blockUserByNameInAuth(String name) {
 
   }
+
+  @Override
+  public UserEntity updateInUserdata(UserEntity user) {
+    return null;
+  }
+
+  @Override
+  public UserAuthEntity updateInAuth(UserAuthEntity user) {
+    return null;
+  }
 }

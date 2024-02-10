@@ -11,7 +11,7 @@ import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.webdriver;
 import static com.codeborne.selenide.WebDriverConditions.urlContaining;
 
-public class MainPage {
+public class MainPage extends BasePage<MainPage>{
 
     private final HistoryOfSpendingsComponent historyOfSpendingsComponent = new HistoryOfSpendingsComponent();
     private final HeaderComponent headerComponent = new HeaderComponent();
