@@ -1,4 +1,4 @@
-package guru.qa.niffler.api;
+package guru.qa.niffler.api.client;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -57,6 +57,7 @@ public class RestClient {
         );
         this.okHttpClient = builder.build();
         this.retrofit = new Retrofit.Builder()
+                .client(this.okHttpClient)
                 .baseUrl(baseUri)
                 .addConverterFactory(converter)
                 .build();
