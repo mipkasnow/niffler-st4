@@ -1,11 +1,11 @@
 package guru.qa.niffler.test;
 
 import guru.qa.niffler.db.repository.SpendRepository;
-import guru.qa.niffler.jupiter.SpendRepositoryExtension;
 import guru.qa.niffler.jupiter.annotation.DeleteSpendsIfUserHasSome;
 import guru.qa.niffler.jupiter.annotation.GenerateCategory;
 import guru.qa.niffler.jupiter.annotation.GenerateSpend;
 import guru.qa.niffler.jupiter.annotation.GenerateSpendWithCategory;
+import guru.qa.niffler.jupiter.extension.SpendRepositoryExtension;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
 import io.qameta.allure.Epic;

@@ -12,7 +12,7 @@ public abstract class BasePage<T extends BasePage> {
     protected final SelenideElement toast = $("[class*='toast']");
 
     @SuppressWarnings("unchecked")
-    @Step("Проверить появление тоста {msg.getMessage()}")
+    @Step("Проверить появление тоста")
     public T checkToastMessage(Msg msg) {
         toast.shouldHave(text(msg.getMessage()));
         return (T) this;
