@@ -10,7 +10,7 @@ import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selectors.withText;
 import static com.codeborne.selenide.Selenide.$;
 
-public class WelcomePage {
+public class WelcomePage extends BasePage<WelcomePage>{
 
     private final SelenideElement
             loginButton = $("a[href*='redirect']"),
@@ -19,6 +19,7 @@ public class WelcomePage {
             logo = $("[alt='Logo Niffler']");
     private static final String MAIN_URL = Config.getInstance().frontUrl();
 
+    @Override
     @Step("Ожидание загрузки начальной страницы приложения")
     public WelcomePage waitUntilLoaded() {
         title.should(appear);
@@ -39,7 +40,13 @@ public class WelcomePage {
         return new SignInPage().waitUntilLoaded();
     }
 
-    public static class SignInPage {
+    @Step("Пройти на форму регистрации")
+    public SignUpPage clickSignUpAndGoToRegisterForm() {
+        registerButton.click();
+        return new SignUpPage().waitUntilLoaded();
+    }
+
+    public static class SignInPage extends BasePage<SignInPage>{
 
         private final SelenideElement errorField = $(".form__error");
         private final String blockedUserMessage = "Учетная запись пользователя заблокирована";
@@ -50,6 +57,7 @@ public class WelcomePage {
                 passwordInput = $("input[name='password']"),
                 signInButton = $("button[type='submit']");
 
+        @Override
         @Step("Ожидание загрузки страницы входа в приложение")
         public SignInPage waitUntilLoaded() {
             subTitle.should(appear);
@@ -87,6 +95,36 @@ public class WelcomePage {
         public SignInPage blockedUserMessageShouldAppear() {
             errorField.shouldHave(text(blockedUserMessage));
             return this;
+        }
+    }
+
+    public static class SignUpPage extends BasePage<SignUpPage> {
+
+        private final SelenideElement
+                subTitle = $(withText("Registration form")),
+                userNameInput = $("input[name='username']"),
+                passwordInput = $("input[name='password']"),
+                passwordInputSubmit = $("input[name='passwordSubmit']"),
+                signUpButton = $("button[type='submit']"),
+                signInRedirectBtn = $(withText("Sign in!")),
+                successRegistrationMsg = $(withText("Congratulations! You've registered!"));
+
+        @Override
+        @Step("Ожидание загрузки страницы регистрации")
+        public SignUpPage waitUntilLoaded() {
+            subTitle.should(appear);
+            return this;
+        }
+
+        @Step
+        public SignInPage registerUserAndGoSignInPage(String userName, String password) {
+            userNameInput.setValue(userName);
+            passwordInput.setValue(password);
+            passwordInputSubmit.setValue(password);
+            signUpButton.click();
+            successRegistrationMsg.should(appear);
+            signInRedirectBtn.click();
+            return new SignInPage().waitUntilLoaded();
         }
     }
 }
