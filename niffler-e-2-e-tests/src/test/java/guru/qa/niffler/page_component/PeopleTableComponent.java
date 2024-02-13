@@ -1,5 +1,6 @@
 package guru.qa.niffler.page_component;
 
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 
 import static com.codeborne.selenide.Condition.text;
@@ -50,9 +51,7 @@ public class PeopleTableComponent {
     }
 
     public PeopleTableComponent verifyPendingInvitationToUser(String username) {
-        peopleTable.$("tr")
-                .$$("td")
-                .get(1)
+        peopleTable.$$("tr").filter(Condition.partialText("Pending invitation")).first()
                 .shouldHave(text(username));
 
         return this;

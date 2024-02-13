@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import static guru.qa.niffler.jupiter.annotation.User.UserType.WITH_FRIENDS;
 
+
 @ExtendWith(UsersQueueExtension.class)
 public class FriendsTest3 extends BaseWebTest{
 

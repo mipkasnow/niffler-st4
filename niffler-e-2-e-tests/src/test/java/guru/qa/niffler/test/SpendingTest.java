@@ -2,7 +2,10 @@ package guru.qa.niffler.test;
 
 import guru.qa.niffler.db.repository.SpendRepository;
 import guru.qa.niffler.jupiter.SpendRepositoryExtension;
-import guru.qa.niffler.jupiter.annotation.*;
+import guru.qa.niffler.jupiter.annotation.DeleteSpendsIfUserHasSome;
+import guru.qa.niffler.jupiter.annotation.GenerateCategory;
+import guru.qa.niffler.jupiter.annotation.GenerateSpend;
+import guru.qa.niffler.jupiter.annotation.GenerateSpendWithCategory;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
 import io.qameta.allure.Epic;
@@ -36,7 +39,7 @@ public class SpendingTest extends BaseWebTest{
             currency = CurrencyValues.RUB
     )
     @Test
-    @DisabledByIssue("74")
+    //@DisabledByIssue("74")
     @DisplayName("Пользователь может удалить Spending")
     void spendingShouldBeDeletedByButtonDeleteSpending(SpendJson spend) {
         welcomePage.open().clickLoginAndGoToSignInPage()
