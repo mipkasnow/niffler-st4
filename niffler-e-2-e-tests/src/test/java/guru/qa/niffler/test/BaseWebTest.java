@@ -3,6 +3,8 @@ package guru.qa.niffler.test;
 import com.codeborne.selenide.Configuration;
 import com.github.javafaker.Faker;
 import guru.qa.niffler.api.client.*;
+import com.codeborne.selenide.Configuration;
+import guru.qa.niffler.config.Config;
 import guru.qa.niffler.jupiter.extension.BrowserExtension;
 import guru.qa.niffler.page.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,4 +33,7 @@ public abstract class BaseWebTest {
         Configuration.browserSize = "1980x1024";
         Configuration.browser = "firefox";
     }
+
+  protected static final Config CFG = Config.getInstance();
+
 }
