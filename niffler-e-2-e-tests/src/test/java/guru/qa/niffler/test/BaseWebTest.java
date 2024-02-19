@@ -3,11 +3,12 @@ package guru.qa.niffler.test;
 import com.codeborne.selenide.Configuration;
 import com.github.javafaker.Faker;
 import guru.qa.niffler.api.client.*;
-import com.codeborne.selenide.Configuration;
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.jupiter.extension.BrowserExtension;
 import guru.qa.niffler.page.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.util.Locale;
 
 @ExtendWith({BrowserExtension.class})
 public abstract class BaseWebTest {
@@ -20,7 +21,7 @@ public abstract class BaseWebTest {
     protected final FriendsPage friendsPage = new FriendsPage();
     protected final PeoplePage peoplePage = new PeoplePage();
 
-    protected final Faker faker = new Faker();
+    protected final Faker faker = new Faker(Locale.ENGLISH);
 
     protected final CategoryApiClient categoryApiClient = new CategoryApiClient();
     protected final GhApiClient ghApiClient = new GhApiClient();

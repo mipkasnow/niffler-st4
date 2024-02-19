@@ -6,7 +6,11 @@ import static com.codeborne.selenide.Condition.appear;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
-public class HeaderComponent {
+public class HeaderComponent extends BaseComponent<HeaderComponent>{
+
+    public HeaderComponent() {
+        super($(".header"));
+    }
 
     private final SelenideElement
             profile = $("[href='/profile']"),
