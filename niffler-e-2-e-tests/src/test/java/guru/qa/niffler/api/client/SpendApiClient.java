@@ -17,13 +17,12 @@ public class SpendApiClient extends RestClient{
 
     private final SpendApi spendApi;
     private final CategoryApi categoryApi;
-    private final Faker faker;
+    private final Faker faker = new Faker();
 
     public SpendApiClient() {
         super("http://127.0.0.1:8093");
         this.spendApi = retrofit.create(SpendApi.class);
         this.categoryApi = retrofit.create(CategoryApi.class);
-        this.faker = new Faker();
     }
 
 

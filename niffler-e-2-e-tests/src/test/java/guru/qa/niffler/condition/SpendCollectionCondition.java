@@ -17,9 +17,6 @@ import java.util.*;
 public class SpendCollectionCondition {
 
   private static final SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yy", Locale.ENGLISH);
-  private static final List<String> expectedTexts = new ArrayList<>();
-  private static final List<String> actualTexts = new ArrayList<>();
-  private static final HashMap<String, List<String>> mapResult = new HashMap<>();
 
   public static CollectionCondition spends(SpendJson... expectedSpends) {
     return new CollectionCondition() {
@@ -44,12 +41,17 @@ public class SpendCollectionCondition {
           return CheckResult.rejected("Incorrect table size", elements);
         }
 
+        List<String> expectedTexts = new ArrayList<>();
+        List<String> actualTexts = new ArrayList<>();
+        HashMap<String, List<String>> mapResult = new HashMap<>();
+
         boolean checkPassed = false;
 
         for (int i = 0; i < elements.size(); i++) {
 
           List<WebElement> tdsRowSpend = elements.get(i).findElements(By.cssSelector("td"));
           SpendJson expectedSpend = expectedSpends[i];
+          actualTexts.addAll(tdsRowSpend.stream().map(WebElement::getText).toList());
           checkPassed = compareRowSpendAndExpected(tdsRowSpend, expectedSpend);
 
           if (!checkPassed) {
@@ -85,8 +87,6 @@ public class SpendCollectionCondition {
     String categoryE = expectedSpend.category();
     String descriptionA = tdsRowSpend.get(5).getText();
     String descriptionE = expectedSpend.description();
-
-    actualTexts.addAll(tdsRowSpend.stream().map(WebElement::getText).toList());
 
     return dateA.equals(dateE)
             && amountA.equals(amountE)
