@@ -7,7 +7,11 @@ import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selectors.withText;
 import static com.codeborne.selenide.Selenide.$;
 
-public class ProfileInfoComponent {
+public class ProfileInfoComponent extends BaseComponent<ProfileInfoComponent>{
+
+    public ProfileInfoComponent() {
+        super($(".profile-content .main-content__section-avatar"));
+    }
 
     private final SelenideElement
             container = $(".profile-content .main-content__section-avatar"),

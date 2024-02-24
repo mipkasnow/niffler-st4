@@ -15,6 +15,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.io.IOException;
+
 @Epic("Веб тесты")
 @Feature("Spendings")
 @ExtendWith(SpendRepositoryExtension.class)
@@ -57,10 +59,27 @@ public class SpendingTest extends BaseWebTest{
     )
     @Test
     @DisplayName("Пользователь может удалить Spending")
-    void spendingShouldBeDeletedByButtonDeleteSpendingRest(SpendJson spend) {
+    void spendingShouldBeDeletedByButtonDeleteSpendingRest(SpendJson spend) throws IOException {
         welcomePage.open().clickLoginAndGoToSignInPage()
                 .signInUser("bee", "12345")
                 .deleteSpendingByButtonDelete(spend.description())
                 .verifyEmptyListOfSpendings();
+    }
+
+    @Test
+    @DisplayName("Проверяем список spendings в таблице")
+    void checkSeveralSpendingsTest() throws IOException {
+        String username = "duck";
+
+        for (int i = 0; i < 2; i++) {
+            spendApiClient.addRandomSpend(username);
+        }
+
+        SpendJson spendJson = spendApiClient.addRandomSpend(username);
+
+        welcomePage.open().clickLoginAndGoToSignInPage()
+                .signInUser(username, "12345")
+                .checkAllSpends(username).selectSpendingByIndex(0).unSelectSpendingByIndex(0)
+                .selectSpendingByDescription(spendJson.description());
     }
 }

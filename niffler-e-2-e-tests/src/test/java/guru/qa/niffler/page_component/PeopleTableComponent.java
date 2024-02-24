@@ -7,7 +7,11 @@ import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
-public class PeopleTableComponent {
+public class PeopleTableComponent extends BaseComponent<PeopleTableComponent>{
+
+    public PeopleTableComponent() {
+        super($(".people-content table"));
+    }
 
     private final SelenideElement
             peopleTable = $(".people-content tbody");
