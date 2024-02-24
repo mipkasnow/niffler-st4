@@ -3,6 +3,7 @@ package guru.qa.niffler.db.repository;
 import guru.qa.niffler.db.DataSourceProvider;
 import guru.qa.niffler.db.Database;
 import guru.qa.niffler.db.model.*;
+import io.qameta.allure.Step;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -23,6 +24,7 @@ public class UserRepositoryJdbc implements UserRepository {
 
   private final PasswordEncoder pe = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
+  @Step("Create user in AUTH")
   @Override
   public UserAuthEntity createInAuth(UserAuthEntity user) {
     try (Connection conn = authDs.getConnection()) {
