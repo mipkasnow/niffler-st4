@@ -1,6 +1,7 @@
 package guru.qa.niffler.jupiter.extension;
 
 import com.github.javafaker.Faker;
+import guru.qa.niffler.db.logging.JsonAllureAppender;
 import guru.qa.niffler.db.model.*;
 import guru.qa.niffler.db.repository.UserRepository;
 import guru.qa.niffler.db.repository.UserRepositoryJdbc;
@@ -20,6 +21,7 @@ public class DbUserExtension implements BeforeEachCallback, ParameterResolver, A
 
     private final Faker faker = new Faker();
     private final UserRepository userRepository = new UserRepositoryJdbc();
+    private final JsonAllureAppender jsonAllureAppender = new JsonAllureAppender();
 
     private static final String USER_AUTH_KEY = "userAuth";
     private static final String USER_KEY = "user";
@@ -67,6 +69,9 @@ public class DbUserExtension implements BeforeEachCallback, ParameterResolver, A
 
         userRepository.createInAuth(userAuth);
         userRepository.createInUserdata(user);
+
+        jsonAllureAppender.logJson(userAuth, "created user in auth");
+        jsonAllureAppender.logJson(user, "created user in userdata");
 
         Map<String, Object> userEntities = new HashMap<>();
         userEntities.put(USER_AUTH_KEY, userAuth);
