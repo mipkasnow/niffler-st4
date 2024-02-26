@@ -18,6 +18,7 @@ public class MainPage extends BasePage<MainPage>{
     private final HistoryOfSpendingsComponent historyOfSpendingsComponent = new HistoryOfSpendingsComponent();
     private final HeaderComponent headerComponent = new HeaderComponent();
     private final StatisticsComponent statisticsComponent = new StatisticsComponent();
+    public static final String URL = CFG.frontUrl() + "/main";
 
     @Override
     @Step("Ожидание загрузки главной страницы")
